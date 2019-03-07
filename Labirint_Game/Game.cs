@@ -100,6 +100,8 @@ namespace Labirint_Game
                 {
                     Draw();
                     input = Input();
+
+
                     Controll(input);
                     MobControler(ref mobsOnMap[0]);
                     MobControler(ref mobsOnMap[1]);
@@ -430,14 +432,16 @@ namespace Labirint_Game
 
         static void GeneratePlayer()
         {
-            for (int i = GameParams.width - 4; i >= 3; i--)
+            PlayerCharacter.x = 1;
+            PlayerCharacter.y = 1;
+            /*for (int i = GameParams.width - 4; i >= 3; i--)
             {
                 if (map[1, i] != wall)
                 {
                     PlayerCharacter.x = i;
                     PlayerCharacter.y = 1;
                 }
-            }
+            }*/
         }
         /*
         static void MobsSet()
