@@ -100,11 +100,9 @@ namespace Labirint_Game
                 {
                     Draw();
                     input = Input();
-
-
                     Controll(input);
-                    MobControler(ref mobsOnMap[0]);
-                    MobControler(ref mobsOnMap[1]);
+                    //MobControler(ref mobsOnMap[0]);
+                    //MobControler(ref mobsOnMap[1]);
 
                 }
                 if (IfDied())
@@ -555,6 +553,8 @@ namespace Labirint_Game
 
         static void Controll(ConsoleKey key)
         {
+            MobControler(ref mobsOnMap[0]);
+            MobControler(ref mobsOnMap[1]);
             switch (key)
             {
                 case ConsoleKey.W:
