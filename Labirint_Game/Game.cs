@@ -7,40 +7,55 @@ using System.Threading.Tasks;
 
 namespace Labirint_Game
 {
+    public struct ColorBlock
+    {
+        public ConsoleColor forColor;
+        public ConsoleColor backColor;
+    }
+    public struct Biome
+    {
+        public ConsoleColor forColor;
+        public ConsoleColor backColor;
+        public int index;
+        public string name;
+    }
+    public struct Mob
+    {
+        public string name;
+        public int x, y;
+        public char sym;
+        public ConsoleColor color;
+        public int Damage;
+        public int index;
+    }
+    public struct PlayerCharacter
+    {
+        public static int x;
+        public static int y;
+        public static char sym = '$';
+        public static ConsoleColor color = ConsoleColor.Red;
+        public static int HP = 10;
+    }
+    public struct GameParams
+    {
+        public static int height, width;
+        public static readonly int BlockFrequncy = 35;
+        public static readonly int mobChanse = 5;
+        public static readonly int WidthOfExit = 3;
+        public static int power = 2;
+        public static int biomeSmoothnes = 4;
+
+    }
+
     class Game
     {
         //params
-        public struct GameParams
-        {
-            public static int height, width;
-            public static readonly int BlockFrequncy = 35;
-            public static readonly int mobChanse = 5;
-            public static readonly int WidthOfExit = 3;
-            public static int power = 2;
-            public static int biomeSmoothnes = 4;
-
-        }
-        /*
-        public struct FileAdress
-        {
-            public static string biomesFile = "biomes.xml";
-            public static string mobsFile = "mobs.xml";
-        }
         
-        static int height, width;
-        static readonly int BlockFrequncy = 35;
-        static readonly int mobChanse = 5;
-        static readonly int WidthOfExit = 3;
-        static int power = 2;
-        static int biomeSmoothnes = 4;
-*/
-        // vars
-        //static ConsoleColor[] forColors = new ConsoleColor[2];
-        //static ConsoleColor[] backColors = new ConsoleColor[2];
         static char[,] map;
 
         static char wall = '#';
         static char Exit = '?';
+        static char nullCell = ' ';
 
         static ColorBlock[,] colorMap;
         public static List<Biome> readBiomes = new List<Biome>();
@@ -48,44 +63,6 @@ namespace Labirint_Game
         static Biome[] biomesOnMap = new Biome[2];
         public static List<Mob> readMobs = new List<Mob>();
 
-        public struct ColorBlock
-        {
-            public ConsoleColor forColor;
-            public ConsoleColor backColor;
-        }
-        public struct Biome
-        {
-            public ConsoleColor forColor;
-            public ConsoleColor backColor;
-            public int index;
-            public string name;
-        }
-        public struct Mob
-        {
-            public string name;
-            public int x, y;
-            public char sym;
-            public ConsoleColor color;
-            public int Damage;
-            public int index;
-        }
-        public struct PlayerCharacter
-        {
-            public static int x;
-            public static int y;
-            public static char sym = '$';
-            public static ConsoleColor color = ConsoleColor.Red;
-            public static int HP = 10;
-        }
-        /*
-        public enum Mobs : Int32
-        {
-            Scorpion = 0,
-            Horse = 1,
-            Druid = 2,
-            Snowman = 3,
-            Yeti = 4,
-        }*/
         static Random Evgen;
 
         public static void Process()
@@ -101,8 +78,7 @@ namespace Labirint_Game
                     Draw();
                     input = Input();
                     Controll(input);
-                    //MobControler(ref mobsOnMap[0]);
-                    //MobControler(ref mobsOnMap[1]);
+                    
 
                 }
                 if (IfDied())
@@ -115,14 +91,11 @@ namespace Labirint_Game
         private static void Init()
         {
             Evgen = new Random();
-            //BiomeSet();
-            //MobsSet();
             GenerateMobs();
             CreateMap();
             SetColorMap();
             GeneratePlayer();
             GameParams.power = 2;
-            //BiomeSet(ref forColors[1], ref backColors[1], ref mobsOnMap[1].index);
         }
 
         private static void CreateMap()
@@ -173,204 +146,7 @@ namespace Labirint_Game
                 map[GameParams.height - 1, l] = Exit;
             }
         }
-        /*
-        static Mob MobXmlReader(XmlNode node)
-        {
-            Mob mob = new Mob();
-            if (node.ChildNodes.Count == 2)
-                if (node.FirstChild.Name == "ForColor" && node.LastChild.Name == "Sym")
-                {
-                    switch (node.FirstChild.InnerText)
-                    {
-                        case "White":
-                            mob.color = ConsoleColor.White;
-                            break;
-                        case "DarkBlue":
-                            mob.color = ConsoleColor.DarkBlue;
-                            break;
-                        case "DarkCyan":
-                            mob.color = ConsoleColor.DarkCyan;
-                            break;
-                        case "DarkGreen":
-                            mob.color = ConsoleColor.DarkGreen;
-                            break;
-                        case "DarkGrey":
-                            mob.color = ConsoleColor.DarkGray;
-                            break;
-                        case "DarkMagenta":
-                            mob.color = ConsoleColor.DarkMagenta;
-                            break;
-                        case "DarkYellow":
-                            mob.color = ConsoleColor.DarkYellow;
-                            break;
-                        case "DarkRed":
-                            mob.color = ConsoleColor.DarkRed;
-                            break;
-                        case "Red":
-                            mob.color = ConsoleColor.Red;
-                            break;
-                        case "Yellow":
-                            mob.color = ConsoleColor.Yellow;
-                            break;
-                        case "Magenta":
-                            mob.color = ConsoleColor.Magenta;
-                            break;
-                        case "Grey":
-                            mob.color = ConsoleColor.Gray;
-                            break;
-                        case "Green":
-                            mob.color = ConsoleColor.Green;
-                            break;
-                        case "Cyan":
-                            mob.color = ConsoleColor.Cyan;
-                            break;
-                        case "Blue":
-                            mob.color = ConsoleColor.Blue;
-                            break;
-                        default:
-                            mob.color = ConsoleColor.Black;
-                            break;
-                    }
-
-                    mob.sym = Convert.ToChar(node.LastChild.InnerText);
-                }
-            mob.name = Convert.ToString(node.Attributes.GetNamedItem("name"));
-            return mob;
-        }
-
-        static Biome BiomeXmlReader(XmlNode node)
-        {
-            Biome biome = new Biome();
-            if (node.ChildNodes.Count == 2)
-                if (node.FirstChild.Name == "ForColor" && node.LastChild.Name == "BackColor")
-                {
-                    switch (node.FirstChild.InnerText)
-                    {
-                        case "White":
-                            biome.forColor = ConsoleColor.White;
-                            break;
-                        case "DarkBlue":
-                            biome.forColor = ConsoleColor.DarkBlue;
-                            break;
-                        case "DarkCyan":
-                            biome.forColor = ConsoleColor.DarkCyan;
-                            break;
-                        case "DarkGreen":
-                            biome.forColor = ConsoleColor.DarkGreen;
-                            break;
-                        case "DarkGrey":
-                            biome.forColor = ConsoleColor.DarkGray;
-                            break;
-                        case "DarkMagenta":
-                            biome.forColor = ConsoleColor.DarkMagenta;
-                            break;
-                        case "DarkYellow":
-                            biome.forColor = ConsoleColor.DarkYellow;
-                            break;
-                        case "DarkRed":
-                            biome.forColor = ConsoleColor.DarkRed;
-                            break;
-                        case "Red":
-                            biome.forColor = ConsoleColor.Red;
-                            break;
-                        case "Yellow":
-                            biome.forColor = ConsoleColor.Yellow;
-                            break;
-                        case "Magenta":
-                            biome.forColor = ConsoleColor.Magenta;
-                            break;
-                        case "Grey":
-                            biome.forColor = ConsoleColor.Gray;
-                            break;
-                        case "Green":
-                            biome.forColor = ConsoleColor.Green;
-                            break;
-                        case "Cyan":
-                            biome.forColor = ConsoleColor.Cyan;
-                            break;
-                        case "Blue":
-                            biome.forColor = ConsoleColor.Blue;
-                            break;
-                        default:
-                            biome.forColor = ConsoleColor.Black;
-                            break;
-                    }
-
-                    switch (node.LastChild.InnerText)
-                    {
-                        case "White":
-                            biome.backColor = ConsoleColor.White;
-                            break;
-                        case "DarkBlue":
-                            biome.backColor = ConsoleColor.DarkBlue;
-                            break;
-                        case "DarkCyan":
-                            biome.backColor = ConsoleColor.DarkCyan;
-                            break;
-                        case "DarkGreen":
-                            biome.backColor = ConsoleColor.DarkGreen;
-                            break;
-                        case "DarkGrey":
-                            biome.backColor = ConsoleColor.DarkGray;
-                            break;
-                        case "DarkMagenta":
-                            biome.backColor = ConsoleColor.DarkMagenta;
-                            break;
-                        case "DarkYellow":
-                            biome.backColor = ConsoleColor.DarkYellow;
-                            break;
-                        case "DarkRed":
-                            biome.backColor = ConsoleColor.DarkRed;
-                            break;
-                        case "Red":
-                            biome.backColor = ConsoleColor.Red;
-                            break;
-                        case "Yellow":
-                            biome.backColor = ConsoleColor.Yellow;
-                            break;
-                        case "Magenta":
-                            biome.backColor = ConsoleColor.Magenta;
-                            break;
-                        case "Grey":
-                            biome.backColor = ConsoleColor.Gray;
-                            break;
-                        case "Green":
-                            biome.backColor = ConsoleColor.Green;
-                            break;
-                        case "Cyan":
-                            biome.backColor = ConsoleColor.Cyan;
-                            break;
-                        case "Blue":
-                            biome.backColor = ConsoleColor.Blue;
-                            break;
-                        default:
-                            biome.backColor = ConsoleColor.Black;
-                            break;
-                    }
-                }
-                else
-                {
-                    biome.forColor = ConsoleColor.Black;
-                    biome.backColor = ConsoleColor.Black;
-                    biome.name = "ErrorBiome";
-                }
-            biome.name = node.Attributes.GetNamedItem("name").Value;
-            return biome;
-        }
-
-        static void BiomeSet()
-        {
-            XmlDocument xD = new XmlDocument();
-            xD.Load(FileAdress.biomesFile);
-            XmlElement xmlMain = xD.DocumentElement;
-            //readBiomes = new Biome[xmlMain.ChildNodes.Count];
-            foreach (XmlNode node in xmlMain)
-            {
-                readBiomes.Add(BiomeXmlReader(node));
-            }
-
-        }
-        */
+        
         static void SetColorMap()
         {
 
@@ -406,23 +182,7 @@ namespace Labirint_Game
 
         static void Coloring(int pointX, int pointY)
         {
-            /*
-            if (point < (height /  2) - biomeSmoothnes)
-            {
-                Console.ForegroundColor = biomesOnMap[0].forColor;
-                Console.BackgroundColor = biomesOnMap[0].backColor;
-            }
-            else if (point >= (height / 2) + biomeSmoothnes)
-            {
-                Console.ForegroundColor = biomesOnMap[1].forColor;
-                Console.BackgroundColor = biomesOnMap[1].backColor;
-            }
-            else if (point > (height / 2) - biomeSmoothnes && point <= (height / 2) + biomeSmoothnes)
-            {
-                int randomBiome = Evgen.Next(0, 2);
-                Console.ForegroundColor = biomesOnMap[randomBiome].forColor;
-                Console.BackgroundColor = biomesOnMap[randomBiome].backColor;
-            }*/
+            
 
             Console.ForegroundColor = colorMap[pointY, pointX].forColor;
             Console.BackgroundColor = colorMap[pointY, pointX].backColor;
@@ -432,65 +192,9 @@ namespace Labirint_Game
         {
             PlayerCharacter.x = 1;
             PlayerCharacter.y = 1;
-            /*for (int i = GameParams.width - 4; i >= 3; i--)
-            {
-                if (map[1, i] != wall)
-                {
-                    PlayerCharacter.x = i;
-                    PlayerCharacter.y = 1;
-                }
-            }*/
+            PlayerCharacter.HP = 10;
         }
-        /*
-        static void MobsSet()
-        {
-
-
-            XmlDocument xD = new XmlDocument();
-            xD.Load(FileAdress.mobsFile);
-            XmlElement xmlMain = xD.DocumentElement;
-            //readMobs = new Mob[xmlMain.ChildNodes.Count];
-            foreach (XmlNode node in xmlMain)
-            {
-                readMobs.Add(MobXmlReader(node));
-            }
-
-            /*
-            switch ((Mobs)mob.index)
-            {
-                case Mobs.Scorpion:
-                    mob.sym = '~';
-                    mob.Damage = 5;
-                    mob.color = ConsoleColor.Black;
-                    break;
-                case Mobs.Horse:
-                    mob.sym = 'P';
-                    mob.Damage = 3;
-                    mob.color = ConsoleColor.DarkYellow;
-                    break;
-                case Mobs.Druid:
-                    mob.sym = 'W';
-                    mob.Damage = 7;
-                    mob.color = ConsoleColor.DarkGreen;
-                    break;
-                case Mobs.Snowman:
-                    mob.sym = '8';
-                    mob.Damage = 0;
-                    mob.color = ConsoleColor.Cyan;
-                    break;
-                case Mobs.Yeti:
-                    mob.sym = 'Y';
-                    mob.Damage = 10;
-                    mob.color = ConsoleColor.Blue;
-                    break;
-                default:
-                    System.Diagnostics.Debug.Assert(false, "Program::GeneratedMob : Not set mob type");
-                    break;
-            }*
-
-
-
-        }*/
+        
 
         static void GenerateMobs()
         {
@@ -502,7 +206,7 @@ namespace Labirint_Game
         {
             int xRand = Evgen.Next(-1, 2);
             int yRand = Evgen.Next(-1, 2);
-            if (!OnWall(xRand, yRand, mob.x, mob.y))
+            if (CanMove(xRand, yRand, mob.x, mob.y))
                 Move(xRand, yRand, ref mob.x, ref mob.y);
         }
 
@@ -558,59 +262,66 @@ namespace Labirint_Game
             switch (key)
             {
                 case ConsoleKey.W:
-                    if (OnMob(0, -1))
-                        PlayerCharacter.HP -= mobsOnMap[PlayerCharacter.y + -1 < GameParams.height / 2 ? 0 : 1].Damage;
-                    if (!OnWall(0, -1, PlayerCharacter.x, PlayerCharacter.y))
-                        Move(0, -1, ref PlayerCharacter.x, ref PlayerCharacter.y);
+                    TryMove(0, -1);
                     break;
 
                 case ConsoleKey.A:
-                    if (OnMob(-1, 0))
-                        PlayerCharacter.HP -= mobsOnMap[PlayerCharacter.y + 0 < GameParams.height / 2 ? 0 : 1].Damage;
-                    if (!OnWall(-1, 0, PlayerCharacter.x, PlayerCharacter.y))
-                        Move(-1, 0, ref PlayerCharacter.x, ref PlayerCharacter.y);
+                    TryMove(-1, 0);
                     break;
 
                 case ConsoleKey.S:
-                    if (OnMob(0, 1))
-                        PlayerCharacter.HP -= mobsOnMap[PlayerCharacter.y + 1 < GameParams.height / 2 ? 0 : 1].Damage;
-                    if (!OnWall(0, 1, PlayerCharacter.x, PlayerCharacter.y))
-                        Move(0, 1, ref PlayerCharacter.x, ref PlayerCharacter.y);
+                    TryMove(0, 1);
                     break;
 
                 case ConsoleKey.D:
-                    if (OnMob(1, 0))
-                        PlayerCharacter.HP -= mobsOnMap[PlayerCharacter.y + 0 < GameParams.height / 2 ? 0 : 1].Damage;
-                    if (!OnWall(1, 0, PlayerCharacter.x, PlayerCharacter.y))
-                        Move(1, 0, ref PlayerCharacter.x, ref PlayerCharacter.y);
+                    TryMove(1, 0);
                     break;
 
                 case ConsoleKey.UpArrow:
-                    BreakWall(0, -1);
+                    TryBreakWall(0, -1);
                     break;
 
                 case ConsoleKey.LeftArrow:
-                    BreakWall(-1, 0);
+                    TryBreakWall(-1, 0);
                     break;
 
                 case ConsoleKey.DownArrow:
-                    BreakWall(0, 1);
+                    TryBreakWall(0, 1);
                     break;
 
                 case ConsoleKey.RightArrow:
-                    BreakWall(1, 0);
+                    TryBreakWall(1, 0);
                     break;
             }
         }
 
-        static bool OnWall(int x, int y, int xObj, int yObj)
+        static void TryMove(int x, int y)
         {
-            return (map[yObj + y, xObj + x] == wall);
+            if (OnMob(x, y, out Mob mob))
+                PlayerCharacter.HP -= mob.Damage;
+            else if (CanMove(x, y, PlayerCharacter.x, PlayerCharacter.y))
+                Move(x, y, ref PlayerCharacter.x, ref PlayerCharacter.y);
         }
 
-        static bool OnMob(int x, int y)
+        static bool CanMove(int x, int y, int xObj, int yObj)
         {
-            return (GetWX(x) == mobsOnMap[0].x && GetWY(y) == mobsOnMap[0].y) || (GetWX(x) == mobsOnMap[1].x && GetWY(y) == mobsOnMap[1].y);
+            return (map[yObj + y, xObj + x] == nullCell);
+        }
+
+        static bool OnMob(int x, int y, out Mob mob)
+        {
+            if (GetWX(x) == mobsOnMap[0].x && GetWY(y) == mobsOnMap[0].y)
+            {
+                mob = mobsOnMap[0];
+                return true;
+            }
+            if (GetWX(x) == mobsOnMap[1].x && GetWY(y) == mobsOnMap[1].y)
+            {
+                mob = mobsOnMap[0];
+                return true;
+            }
+            mob = new Mob();
+            return false;
         }
 
         static bool IfDied()
@@ -618,12 +329,11 @@ namespace Labirint_Game
             return PlayerCharacter.HP <= 0;
         }
 
-        static void BreakWall(int x, int y)
+        static void TryBreakWall(int x, int y)
         {
-            //ok?
             if (IfBreakWall(x, y))
             {
-                map[GetWY(y), GetWX(x)] = ' ';
+                map[GetWY(y), GetWX(x)] = nullCell;
                 GameParams.power--;
             }
         }
@@ -664,7 +374,6 @@ namespace Labirint_Game
 
         static bool IfBreakWall(int x, int y)
         {
-            //ok?
             if ((GetWY(y) != GameParams.height - 1 && GetWX(x) != GameParams.width - 1) &&
                (GetWY(y) != 0 && GetWX(x) != 0))
             {

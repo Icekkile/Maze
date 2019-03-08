@@ -35,13 +35,15 @@ namespace Labirint_Game
             Game.Process();
         }
 
-        static Game.Mob MobXmlReader(XmlNode node)
+        static Mob MobXmlReader(XmlNode node)
         {
-            Game.Mob mob = new Game.Mob();
-            if (node.ChildNodes.Count == 2)
-                if (node.FirstChild.Name == "ForColor" && node.LastChild.Name == "Sym")
+            Mob mob = new Mob();
+            if (node.ChildNodes.Count == 3)
+            {
+                XmlNodeList xList = node.ChildNodes;
+                if (xList[0].Name == "ForColor" && xList[1].Name == "Sym" && xList[2].Name == "Damage")
                 {
-                    switch (node.FirstChild.InnerText)
+                    switch (xList[0].InnerText)
                     {
                         case "White":
                             mob.color = ConsoleColor.White;
@@ -93,15 +95,18 @@ namespace Labirint_Game
                             break;
                     }
 
-                    mob.sym = Convert.ToChar(node.LastChild.InnerText);
+                    mob.sym = Convert.ToChar(xList[1].InnerText);
+
+                    mob.Damage = Convert.ToInt32(xList[2].InnerText);
                 }
+            }
             mob.name = Convert.ToString(node.Attributes.GetNamedItem("name"));
             return mob;
         }
 
-        static Game.Biome BiomeXmlReader(XmlNode node)
+        static Biome BiomeXmlReader(XmlNode node)
         {
-            Game.Biome biome = new Game.Biome();
+            Biome biome = new Biome();
             if (node.ChildNodes.Count == 2)
                 if (node.FirstChild.Name == "ForColor" && node.LastChild.Name == "BackColor")
                 {
@@ -718,7 +723,7 @@ namespace Labirint_Game
             {
                 int xRand = Evgen.Next(-1, 2);
                 int yRand = Evgen.Next(-1, 2);
-                if (!OnWall(xRand, yRand, mob.x, mob.y))
+                if (!CanMove(xRand, yRand, mob.x, mob.y))
                     Move(xRand, yRand, ref mob.x, ref mob.y);
             }
 
@@ -774,50 +779,50 @@ namespace Labirint_Game
                     case ConsoleKey.W:
                         if (OnMob(0, -1))
                             PlayerCharacter.HP -= mobsOnMap[PlayerCharacter.y + -1 < GameParams.height / 2 ? 0 : 1].Damage;
-                        if (!OnWall(0, -1, PlayerCharacter.x, PlayerCharacter.y)) 
+                        if (!CanMove(0, -1, PlayerCharacter.x, PlayerCharacter.y)) 
                             Move(0, -1, ref PlayerCharacter.x, ref PlayerCharacter.y);
                         break;
 
                     case ConsoleKey.A:
                         if (OnMob(-1, 0))
                             PlayerCharacter.HP -= mobsOnMap[PlayerCharacter.y + 0 < GameParams.height / 2 ? 0 : 1].Damage;
-                        if (!OnWall(-1, 0, PlayerCharacter.x, PlayerCharacter.y))
+                        if (!CanMove(-1, 0, PlayerCharacter.x, PlayerCharacter.y))
                             Move(-1, 0, ref PlayerCharacter.x, ref PlayerCharacter.y);
                         break;
 
                     case ConsoleKey.S:
                         if (OnMob(0, 1))
                             PlayerCharacter.HP -= mobsOnMap[PlayerCharacter.y + 1 < GameParams.height / 2 ? 0 : 1].Damage;
-                        if (!OnWall(0, 1, PlayerCharacter.x, PlayerCharacter.y))
+                        if (!CanMove(0, 1, PlayerCharacter.x, PlayerCharacter.y))
                             Move(0, 1, ref PlayerCharacter.x, ref PlayerCharacter.y);
                         break;
 
                     case ConsoleKey.D:
                         if (OnMob(1, 0))
                             PlayerCharacter.HP -= mobsOnMap[PlayerCharacter.y + 0 < GameParams.height / 2 ? 0 : 1].Damage;
-                        if (!OnWall(1, 0, PlayerCharacter.x, PlayerCharacter.y))
+                        if (!CanMove(1, 0, PlayerCharacter.x, PlayerCharacter.y))
                             Move(1, 0, ref PlayerCharacter.x, ref PlayerCharacter.y);
                         break;
 
                     case ConsoleKey.UpArrow:
-                        BreakWall(0, -1);
+                        TryBreakWall(0, -1);
                         break;
 
                     case ConsoleKey.LeftArrow:
-                        BreakWall(-1, 0);
+                        TryBreakWall(-1, 0);
                         break;
 
                     case ConsoleKey.DownArrow:
-                        BreakWall(0, 1);
+                        TryBreakWall(0, 1);
                         break;
 
                     case ConsoleKey.RightArrow:
-                        BreakWall(1, 0);
+                        TryBreakWall(1, 0);
                         break;
                 }
             }
 
-            static bool OnWall(int x, int y, int xObj, int yObj)
+            static bool CanMove(int x, int y, int xObj, int yObj)
             {
                 return (map[yObj + y, xObj + x] == wall);
             }
@@ -832,7 +837,7 @@ namespace Labirint_Game
                 return PlayerCharacter.HP <= 0;
             }
 
-            static void BreakWall(int x, int y)
+            static void TryBreakWall(int x, int y)
             {
                 //ok?
                 if (IfBreakWall(x, y))
