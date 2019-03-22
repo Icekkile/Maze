@@ -305,7 +305,7 @@ namespace Labirint_Game
 
         static bool CanMove(int x, int y, int xObj, int yObj)
         {
-            return (map[yObj + y, xObj + x] == nullCell);
+            return (map[yObj + y, xObj + x] == nullCell || map[yObj + y, xObj + x] == Exit);
         }
 
         static bool OnMob(int x, int y, out Mob mob)
