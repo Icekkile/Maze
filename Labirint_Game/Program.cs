@@ -30,12 +30,15 @@ namespace Labirint_Game
             public static string modsFile = @"E:\MyCode\kirill_strong\Labirint_Game\Labirint_Game\Mods\modsList.txt";
         }
 
+        static Game game = new Game();
+
         static void Main (string[] args)
         {
+            
             BiomeSet();
             MobsSet();
             ModSet();
-            Game.Process();
+            game.Process();
         }
 
         static Mob MobXmlReader(XmlNode node)
@@ -235,7 +238,7 @@ namespace Labirint_Game
             //readBiomes = new Biome[xmlMain.ChildNodes.Count];
             foreach (XmlNode node in xmlMain)
             {
-                Game.readBiomes.Add(BiomeXmlReader(node));
+                game.readBiomes.Add(BiomeXmlReader(node));
             }
 
         }
@@ -259,9 +262,9 @@ namespace Labirint_Game
                 foreach (XmlNode node in xmlMain)
                 {
                     if (line.Substring(0, line.IndexOf('-')) == "biome")
-                        Game.readBiomes.Add(BiomeXmlReader(node));
+                        game.readBiomes.Add(BiomeXmlReader(node));
                     else if (line.Substring(0, line.IndexOf('-')) == "mob")
-                        Game.readMobs.Add(MobXmlReader(node));
+                        game.readMobs.Add(MobXmlReader(node));
                 }
             }
         }
@@ -276,7 +279,7 @@ namespace Labirint_Game
             //readMobs = new Mob[xmlMain.ChildNodes.Count];
             foreach (XmlNode node in xmlMain)
             {
-                Game.readMobs.Add(MobXmlReader(node));
+                game.readMobs.Add(MobXmlReader(node));
             }
         }
         #region comments
