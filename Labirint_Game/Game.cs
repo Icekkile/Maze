@@ -91,8 +91,6 @@ namespace Labirint_Game
                     Draw();
                     input = Input();
                     Controll(input);
-                    
-
                 }
                 if (IfDied())
                     Die();
@@ -105,11 +103,8 @@ namespace Labirint_Game
         {
             Evgen = new Random();
             GeneratePlayer();
-            GenerateMobs();
             CreateMap();
             SetColorMap();
-            
-            player.power = 2;
         }
 
         void SetBiomeSmoothnes ()
@@ -153,10 +148,7 @@ namespace Labirint_Game
             biomesOnMap[1] = readBiomes[Evgen.Next(0, readBiomes.Count)];
 
             //create mobs
-            mobsOnMap[0].x = Evgen.Next(1, gameParams.width - 1);
-            mobsOnMap[0].y = Evgen.Next(2, gameParams.height / 2);
-            mobsOnMap[1].x = Evgen.Next(1, gameParams.width - 1);
-            mobsOnMap[1].y = Evgen.Next(gameParams.height / 2, gameParams.height - 1);
+            GenerateMobs();
 
             //create exit
             int l = Evgen.Next(1, gameParams.width - GlobalGameParams.WidthOfExit);
@@ -169,13 +161,13 @@ namespace Labirint_Game
         void SetColorMap()
         {
 
-            for (int i = 0; i < (gameParams.height / 2) - gameParams.biomeSmoothnes; i++)
+            for (int i = 0; i < (gameParams.height / 2) - gameParams.biomeSmoothnes / 2; i++)
                 for (int j = 0; j < gameParams.width; j++)
                 {
                     colorMap[i, j].forColor = biomesOnMap[0].forColor;
                     colorMap[i, j].backColor = biomesOnMap[0].backColor;
                 }
-            for (int i = gameParams.height - 1; i > gameParams.height / 2; i--)
+            for (int i = gameParams.height - 1; i > gameParams.height / 2 + gameParams.biomeSmoothnes / 2; i--)
                 for (int j = 0; j < gameParams.width; j++)
                 {
                     colorMap[i, j].forColor = biomesOnMap[1].forColor;
@@ -185,13 +177,13 @@ namespace Labirint_Game
             int randomOfSmoth = 0;
             for (int j = 0; j < gameParams.width; j++)
             {
-                randomOfSmoth = Evgen.Next(1, gameParams.biomeSmoothnes + 1);
-                for (int i = (gameParams.height / 2) - gameParams.biomeSmoothnes; i < (gameParams.height / 2) - randomOfSmoth; i++)
+                randomOfSmoth = Evgen.Next(gameParams.biomeSmoothnes / 2 * -1, gameParams.biomeSmoothnes / 2 + 1);
+                for (int i = (gameParams.height / 2) - gameParams.biomeSmoothnes / 2; i < (gameParams.height / 2) - randomOfSmoth; i++)
                 {
                     colorMap[i, j].forColor = biomesOnMap[0].forColor;
                     colorMap[i, j].backColor = biomesOnMap[0].backColor;
                 }
-                for (int i = (gameParams.height / 2) - randomOfSmoth; i <= gameParams.height / 2; i++)
+                for (int i = (gameParams.height / 2) - gameParams.biomeSmoothnes / 2 - randomOfSmoth; i <= gameParams.height / 2 + gameParams.biomeSmoothnes / 2; i++)
                 {
                     colorMap[i, j].forColor = biomesOnMap[1].forColor;
                     colorMap[i, j].backColor = biomesOnMap[1].backColor;
@@ -201,8 +193,6 @@ namespace Labirint_Game
 
         void Coloring(int pointX, int pointY)
         {
-            
-
             Console.ForegroundColor = colorMap[pointY, pointX].forColor;
             Console.BackgroundColor = colorMap[pointY, pointX].backColor;
         }
@@ -217,6 +207,11 @@ namespace Labirint_Game
         {
             mobsOnMap[0] = readMobs[Evgen.Next(0, readMobs.Count)];
             mobsOnMap[1] = readMobs[Evgen.Next(0, readMobs.Count)];
+
+            mobsOnMap[0].x = Evgen.Next(1, gameParams.width - 1);
+            mobsOnMap[0].y = Evgen.Next(2, gameParams.height / 2);
+            mobsOnMap[1].x = Evgen.Next(1, gameParams.width - 1);
+            mobsOnMap[1].y = Evgen.Next(gameParams.height / 2, gameParams.height - 1);
         }
 
         void MobControler(ref Mob mob)
@@ -230,8 +225,7 @@ namespace Labirint_Game
         private void Draw()
         {
             Console.Clear();
-
-
+            
             // draw HEIGHT rows
             for (int i = 0; i < gameParams.height; i++)
             {

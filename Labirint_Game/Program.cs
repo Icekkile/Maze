@@ -256,7 +256,7 @@ namespace Labirint_Game
             foreach(string line in file)
             {
                 XmlDocument xD = new XmlDocument();
-                xD.Load(line.Substring(line.IndexOf('|')));
+                xD.Load(line.Substring(line.IndexOf('\\')+1));
                 XmlElement xmlMain = xD.DocumentElement;
                 //readBiomes = new Biome[xmlMain.ChildNodes.Count];
                 foreach (XmlNode node in xmlMain)

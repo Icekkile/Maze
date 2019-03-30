@@ -1,3 +1,2 @@
-biome|E:\MyCode\kirill_strong\Labirint_Game\Labirint_Game\Mods\biomesMods\def.xml
-mob|E:\MyCode\kirill_strong\Labirint_Game\Labirint_Game\Mods\mobsMods\def.xml
-comment|Don`t remove it
+biome\E:\MyCode\kirill_strong\Labirint_Game\Labirint_Game\Mods\biomesMods\def.xml
+mob\E:\MyCode\kirill_strong\Labirint_Game\Labirint_Game\Mods\mobsMods\def.xml
