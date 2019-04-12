@@ -4,34 +4,60 @@ using System.Linq;
 using System.Xml;
 using System.Text;
 using System.Threading.Tasks;
+using BaseData;
+using System.Xml.Serialization;
 
 namespace Labirint_Game
 {
+    interface IMovable
+    {
+        //int x; int y;
+        void Move(int _x, int _y);
+    }
+
+    public abstract class Character
+    {
+        public int x { get; set; }
+        public int y { get; set; }
+
+        //public abstract void Move(int _x, int _y);
+    }
+
+    [Serializable]
+    public class GameMob : Character, IMovable
+    {
+        public Mob commonHalf { get; set; }
+
+        public void Move (int _x, int _y)
+        {
+            x += _x;
+            y += _y;
+        }
+
+        public GameMob()
+        {
+
+        }
+    }
+
+    [Serializable]
+    public class GameBiome
+    {
+        public Biome commonHalf;
+        public GameBiome()
+        {
+
+        }
+    }
+
     public struct ColorBlock
     {
         public ConsoleColor forColor;
         public ConsoleColor backColor;
     }
-    public struct Biome
+
+    public class PlayerCharacter : Character, IMovable
     {
-        public ConsoleColor forColor;
-        public ConsoleColor backColor;
-        public int index;
-        public string name;
-    }
-    public struct Mob
-    {
-        public string name;
-        public int x, y;
-        public char sym;
-        public ConsoleColor color;
-        public int Damage;
-        public int index;
-    }
-    public struct PlayerCharacter
-    {
-        public int x;
-        public int y;
         public char sym;
         public ConsoleColor color;
         public int HP;
@@ -45,7 +71,14 @@ namespace Labirint_Game
             HP = _HP;
             power = _power;
         }
+
+        public void Move (int _x, int _y)
+        {
+            x += _x;
+            y += _y;
+        }
     }
+
     public struct GlobalGameParams
     {
         public static readonly int BlockFrequncy = 35;
@@ -61,7 +94,7 @@ namespace Labirint_Game
     class Game
     {
         //params
-        
+
         char[,] map;
 
         char wall = '#';
@@ -69,10 +102,10 @@ namespace Labirint_Game
         char nullCell = ' ';
 
         ColorBlock[,] colorMap;
-        public List<Biome> readBiomes = new List<Biome>();
-        Mob[] mobsOnMap = new Mob[2];
-        Biome[] biomesOnMap = new Biome[2];
-        public List<Mob> readMobs = new List<Mob>();
+        public List<GameBiome> readBiomes = new List<GameBiome>();
+        GameMob[] mobsOnMap = new GameMob[2];
+        GameBiome[] biomesOnMap = new GameBiome[2];
+        public List<GameMob> readMobs = new List<GameMob>();
 
         PlayerCharacter player;
         GameParams gameParams;
@@ -107,7 +140,7 @@ namespace Labirint_Game
             SetColorMap();
         }
 
-        void SetBiomeSmoothnes ()
+        void SetBiomeSmoothnes()
         {
             gameParams.biomeSmoothnes = gameParams.height / 5;
         }
@@ -157,21 +190,21 @@ namespace Labirint_Game
                 map[gameParams.height - 1, l] = Exit;
             }
         }
-        
+
         void SetColorMap()
         {
 
             for (int i = 0; i < (gameParams.height / 2) - gameParams.biomeSmoothnes / 2; i++)
                 for (int j = 0; j < gameParams.width; j++)
                 {
-                    colorMap[i, j].forColor = biomesOnMap[0].forColor;
-                    colorMap[i, j].backColor = biomesOnMap[0].backColor;
+                    colorMap[i, j].forColor = biomesOnMap[0].commonHalf.forColor;
+                    colorMap[i, j].backColor = biomesOnMap[0].commonHalf.backColor;
                 }
             for (int i = gameParams.height - 1; i > gameParams.height / 2 + gameParams.biomeSmoothnes / 2; i--)
                 for (int j = 0; j < gameParams.width; j++)
                 {
-                    colorMap[i, j].forColor = biomesOnMap[1].forColor;
-                    colorMap[i, j].backColor = biomesOnMap[1].backColor;
+                    colorMap[i, j].forColor = biomesOnMap[1].commonHalf.forColor;
+                    colorMap[i, j].backColor = biomesOnMap[1].commonHalf.backColor;
                 }
 
             int randomOfSmoth = 0;
@@ -180,13 +213,13 @@ namespace Labirint_Game
                 randomOfSmoth = Evgen.Next(gameParams.biomeSmoothnes / 2 * -1, gameParams.biomeSmoothnes / 2 + 1);
                 for (int i = (gameParams.height / 2) - gameParams.biomeSmoothnes / 2; i < (gameParams.height / 2) - randomOfSmoth; i++)
                 {
-                    colorMap[i, j].forColor = biomesOnMap[0].forColor;
-                    colorMap[i, j].backColor = biomesOnMap[0].backColor;
+                    colorMap[i, j].forColor = biomesOnMap[0].commonHalf.forColor;
+                    colorMap[i, j].backColor = biomesOnMap[0].commonHalf.backColor;
                 }
                 for (int i = (gameParams.height / 2) - gameParams.biomeSmoothnes / 2 - randomOfSmoth; i <= gameParams.height / 2 + gameParams.biomeSmoothnes / 2; i++)
                 {
-                    colorMap[i, j].forColor = biomesOnMap[1].forColor;
-                    colorMap[i, j].backColor = biomesOnMap[1].backColor;
+                    colorMap[i, j].forColor = biomesOnMap[1].commonHalf.forColor;
+                    colorMap[i, j].backColor = biomesOnMap[1].commonHalf.backColor;
                 }
             }
         }
@@ -201,7 +234,6 @@ namespace Labirint_Game
         {
             player = new PlayerCharacter(1, 1, '$', ConsoleColor.Red, 10, 2);
         }
-        
 
         void GenerateMobs()
         {
@@ -214,18 +246,18 @@ namespace Labirint_Game
             mobsOnMap[1].y = Evgen.Next(gameParams.height / 2, gameParams.height - 1);
         }
 
-        void MobControler(ref Mob mob)
+        void MobControler(ref GameMob mob)
         {
             int xRand = Evgen.Next(-1, 2);
             int yRand = Evgen.Next(-1, 2);
             if (CanMove(xRand, yRand, mob.x, mob.y))
-                Move(xRand, yRand, ref mob.x, ref mob.y);
+                mob.Move(xRand, yRand);
         }
 
         private void Draw()
         {
             Console.Clear();
-            
+
             // draw HEIGHT rows
             for (int i = 0; i < gameParams.height; i++)
             {
@@ -250,8 +282,8 @@ namespace Labirint_Game
             }
             else if ((mobsOnMap[0].x == x && mobsOnMap[0].y == y) || (mobsOnMap[1].x == x && mobsOnMap[1].y == y))
             {
-                Console.ForegroundColor = mobsOnMap[y < gameParams.height / 2 ? 0 : 1].color;
-                Console.Write(mobsOnMap[y < gameParams.height / 2 ? 0 : 1].sym);
+                Console.ForegroundColor = mobsOnMap[y < gameParams.height / 2 ? 0 : 1].commonHalf.color;
+                Console.Write(mobsOnMap[y < gameParams.height / 2 ? 0 : 1].commonHalf.sym);
             }
             else
             {
@@ -268,8 +300,7 @@ namespace Labirint_Game
 
         void Controll(ConsoleKey key)
         {
-            MobControler(ref mobsOnMap[0]);
-            MobControler(ref mobsOnMap[1]);
+
             switch (key)
             {
                 case ConsoleKey.W:
@@ -304,14 +335,16 @@ namespace Labirint_Game
                     TryBreakWall(1, 0);
                     break;
             }
+            MobControler(ref mobsOnMap[0]);
+            MobControler(ref mobsOnMap[1]);
         }
 
         void TryMove(int x, int y)
         {
-            if (OnMob(x, y, out Mob mob))
-                player.HP -= mob.Damage;
+            if (OnMob(x, y, out GameMob mob))
+                player.HP -= mob.commonHalf.Damage;
             else if (CanMove(x, y, player.x, player.y))
-                Move(x, y, ref player.x, ref player.y);
+                player.Move(x, y);
         }
 
         bool CanMove(int x, int y, int xObj, int yObj)
@@ -319,7 +352,7 @@ namespace Labirint_Game
             return (map[yObj + y, xObj + x] == nullCell || map[yObj + y, xObj + x] == Exit);
         }
 
-        bool OnMob(int x, int y, out Mob mob)
+        bool OnMob(int x, int y, out GameMob mob)
         {
             if (GetWX(x) == mobsOnMap[0].x && GetWY(y) == mobsOnMap[0].y)
             {
@@ -331,7 +364,7 @@ namespace Labirint_Game
                 mob = mobsOnMap[0];
                 return true;
             }
-            mob = new Mob();
+            mob = new GameMob();
             return false;
         }
 
@@ -349,11 +382,11 @@ namespace Labirint_Game
             }
         }
 
-        void Move(int x, int y, ref int xObj, ref int yObj)
+        /*void Move(int x, int y, ref object obj)
         {
-            xObj += x;
+            obj.x += x;
             yObj += y;
-        }
+        }*/
 
         bool OnExit()
         {
