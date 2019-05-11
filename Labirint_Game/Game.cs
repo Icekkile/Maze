@@ -15,6 +15,11 @@ namespace Labirint_Game
         void Move(int _x, int _y);
     }
 
+    interface ICharacter
+    {
+        int x { get; set; }
+        int y { get; set; }
+    }
     public abstract class Character
     {
         public int x { get; set; }
@@ -22,11 +27,12 @@ namespace Labirint_Game
 
         //public abstract void Move(int _x, int _y);
     }
-
+    
     [Serializable]
-    public class GameMob : Character, IMovable
+    public class GameMob : Mob, ICharacter, IMovable
     {
-        public Mob commonHalf { get; set; }
+        public int x { get; set; }
+        public int y { get; set; }
 
         public void Move (int _x, int _y)
         {
@@ -39,11 +45,10 @@ namespace Labirint_Game
 
         }
     }
-
+    
     [Serializable]
-    public class GameBiome
+    public class GameBiome : Biome
     {
-        public Biome commonHalf;
         public GameBiome()
         {
 
@@ -197,14 +202,14 @@ namespace Labirint_Game
             for (int i = 0; i < (gameParams.height / 2) - gameParams.biomeSmoothnes / 2; i++)
                 for (int j = 0; j < gameParams.width; j++)
                 {
-                    colorMap[i, j].forColor = biomesOnMap[0].commonHalf.forColor;
-                    colorMap[i, j].backColor = biomesOnMap[0].commonHalf.backColor;
+                    colorMap[i, j].forColor = biomesOnMap[0].forColor;
+                    colorMap[i, j].backColor = biomesOnMap[0].backColor;
                 }
             for (int i = gameParams.height - 1; i > gameParams.height / 2 + gameParams.biomeSmoothnes / 2; i--)
                 for (int j = 0; j < gameParams.width; j++)
                 {
-                    colorMap[i, j].forColor = biomesOnMap[1].commonHalf.forColor;
-                    colorMap[i, j].backColor = biomesOnMap[1].commonHalf.backColor;
+                    colorMap[i, j].forColor = biomesOnMap[1].forColor;
+                    colorMap[i, j].backColor = biomesOnMap[1].backColor;
                 }
 
             int randomOfSmoth = 0;
@@ -213,13 +218,13 @@ namespace Labirint_Game
                 randomOfSmoth = Evgen.Next(gameParams.biomeSmoothnes / 2 * -1, gameParams.biomeSmoothnes / 2 + 1);
                 for (int i = (gameParams.height / 2) - gameParams.biomeSmoothnes / 2; i < (gameParams.height / 2) - randomOfSmoth; i++)
                 {
-                    colorMap[i, j].forColor = biomesOnMap[0].commonHalf.forColor;
-                    colorMap[i, j].backColor = biomesOnMap[0].commonHalf.backColor;
+                    colorMap[i, j].forColor = biomesOnMap[0].forColor;
+                    colorMap[i, j].backColor = biomesOnMap[0].backColor;
                 }
                 for (int i = (gameParams.height / 2) - gameParams.biomeSmoothnes / 2 - randomOfSmoth; i <= gameParams.height / 2 + gameParams.biomeSmoothnes / 2; i++)
                 {
-                    colorMap[i, j].forColor = biomesOnMap[1].commonHalf.forColor;
-                    colorMap[i, j].backColor = biomesOnMap[1].commonHalf.backColor;
+                    colorMap[i, j].forColor = biomesOnMap[1].forColor;
+                    colorMap[i, j].backColor = biomesOnMap[1].backColor;
                 }
             }
         }
@@ -282,8 +287,8 @@ namespace Labirint_Game
             }
             else if ((mobsOnMap[0].x == x && mobsOnMap[0].y == y) || (mobsOnMap[1].x == x && mobsOnMap[1].y == y))
             {
-                Console.ForegroundColor = mobsOnMap[y < gameParams.height / 2 ? 0 : 1].commonHalf.color;
-                Console.Write(mobsOnMap[y < gameParams.height / 2 ? 0 : 1].commonHalf.sym);
+                Console.ForegroundColor = mobsOnMap[y < gameParams.height / 2 ? 0 : 1].color;
+                Console.Write(mobsOnMap[y < gameParams.height / 2 ? 0 : 1].sym);
             }
             else
             {
@@ -342,7 +347,7 @@ namespace Labirint_Game
         void TryMove(int x, int y)
         {
             if (OnMob(x, y, out GameMob mob))
-                player.HP -= mob.commonHalf.Damage;
+                player.HP -= mob.Damage;
             else if (CanMove(x, y, player.x, player.y))
                 player.Move(x, y);
         }
