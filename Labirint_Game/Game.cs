@@ -242,8 +242,18 @@ namespace Labirint_Game
 
         void GenerateMobs()
         {
-            mobsOnMap[0] = readMobs[Evgen.Next(0, readMobs.Count)];
-            mobsOnMap[1] = readMobs[Evgen.Next(0, readMobs.Count)];
+            List<GameMob> suitableMobs_0 = new List<GameMob>();
+            List<GameMob> suitableMobs_1 = new List<GameMob>();
+            foreach (GameMob mob in readMobs)
+            {
+                if (mob.biome == biomesOnMap[0].name)
+                    suitableMobs_0.Add(mob);
+                if (mob.biome == biomesOnMap[1].name)
+                    suitableMobs_1.Add(mob);
+            }
+
+            mobsOnMap[0] = suitableMobs_0[Evgen.Next(0, suitableMobs_0.Count)];
+            mobsOnMap[1] = suitableMobs_1[Evgen.Next(0, suitableMobs_1.Count)];
 
             mobsOnMap[0].x = Evgen.Next(1, gameParams.width - 1);
             mobsOnMap[0].y = Evgen.Next(2, gameParams.height / 2);

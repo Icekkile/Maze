@@ -12,19 +12,6 @@ namespace Labirint_Game
 {
     class Program
     {
-        /*
-        //params
-        public struct GameParams
-        {
-            public static int height, width;
-            public static readonly int BlockFrequncy = 35;
-            public static readonly int mobChanse = 5;
-            public static readonly int WidthOfExit = 3;
-            public static int power = 2;
-            public static int biomeSmoothnes = 4;
-
-        }*/
-        
         public struct FileData
         {
             public static string biomesFile = "biomes.xml";
@@ -61,6 +48,13 @@ namespace Labirint_Game
         {
             foreach (Mob mob in mobs)
             {
+                bool biomeFound = false;
+                foreach (GameBiome biome in game.readBiomes)
+                    if (biome.name == mob.biome)
+                        biomeFound = true;
+
+                if (!biomeFound) continue;
+
                 GameMob gameMob = new GameMob();
                 gameMob.name = mob.name;
                 gameMob.color = mob.color;

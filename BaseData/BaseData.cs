@@ -23,6 +23,7 @@ namespace BaseData
         public char sym;
         public ConsoleColor color;
         public int Damage;
+        public string biome;
 
         public Mob() { }
     }
