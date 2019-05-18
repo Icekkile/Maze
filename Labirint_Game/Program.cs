@@ -60,6 +60,7 @@ namespace Labirint_Game
                 gameMob.color = mob.color;
                 gameMob.sym = mob.sym;
                 gameMob.Damage = mob.Damage;
+                gameMob.biome = mob.biome;
                 game.readMobs.Add(gameMob);
             }
         }
